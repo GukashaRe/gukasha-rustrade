@@ -1,9 +1,12 @@
 [package]
 name = "gukasha-rustrade"
-version = "0.0.12"
+version = "0.0.13"
 edition = "2024"
 license = "LGPL-2.1-only"
 description = "A Rust toolbox focusing on trade and logistics that currently provides HS Code verification and conversion capabilities"
+repository = "https://github.com/GukashaRe/gukasha-rustrade"
+readme = "README.md"
+
 
 [dependencies]
 thiserror = "2.0.18"
