@@ -1,0 +1,9 @@
+[package]
+name = "gukasha-rustrade"
+version = "0.0.1"
+edition = "2024"
+license = "LGPL-2"
+description = "A Rust toolbox focusing on trade and logistics that currently provides HS Code verification and conversion capabilities"
+
+[dependencies]
+thiserror = "2.0.18"
