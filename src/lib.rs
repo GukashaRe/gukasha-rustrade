@@ -36,6 +36,7 @@
 use crate::HscodeError::{HsChapterError, HsCodeLenError, InputError};
 use std::fmt;
 use thiserror::Error;
+include!(concat!(env!("OUT_DIR"), "/hs_data.rs"));
 
 #[derive(Error, Debug)]
 pub enum HscodeError {
@@ -54,6 +55,25 @@ impl fmt::Display for HsCode {
         let s: String = self.0.iter().map(|&d| (d + b'0') as char).collect();
         write!(f, "{}", s)
     }
+}
+
+/// 根据 HS 编码（前6位）查询标准商品描述
+///
+/// # Examples
+///
+/// ```
+/// use gukasha_rustrade::lookup;
+///
+/// let desc = lookup("010121").unwrap();
+/// assert_eq!(desc, "Horses; live");
+/// ```
+pub fn lookup(code: &str) -> Option<&'static str> {
+    let key = if code.len() >= 6 {
+        &code[..6]
+    } else {
+        code
+    };
+    HS_MAP.get(key).copied()
 }
 
 impl HsCode {

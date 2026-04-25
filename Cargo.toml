@@ -9,4 +9,5 @@ readme = "README.md"
 
 
 [dependencies]
+phf = {version = "0.13.1",features = ["macros"]}
 thiserror = "2.0.18"
