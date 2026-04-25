@@ -1,0 +1,28 @@
+name: "Update HS Data from DataHub"
+
+on:
+  schedule:
+    - cron: "0 0 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download latest CSV
+        run: |
+          curl -L -o data/harmonized-system.csv \
+          https://datahub.io/core/harmonized-system/_r/-/data/harmonized-system.csv
+
+      - name: Commit and push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data/harmonized-system.csv
+          git commit -m "chore: auto-update hs data from DataHub" || echo "No changes to commit"
+          git push
