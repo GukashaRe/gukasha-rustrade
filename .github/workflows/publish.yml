@@ -1,17 +1,32 @@
 name: Publish to crates.io
+
 on:
   push:
     tags: ['v*']  # Triggers when pushing tags starting with 'v'
+
 jobs:
   publish:
     runs-on: ubuntu-latest
     environment: release  # Optional: for enhanced security
     permissions:
       id-token: write     # Required for OIDC token exchange
+
     steps:
       - uses: actions/checkout@v6
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Reset working directory (avoid Cargo.lock conflicts)
+        run: git reset --hard HEAD
+
       - uses: rust-lang/crates-io-auth-action@v1
         id: auth
-      - run: cargo publish
+
+      - name: Publish to crates.io
+        run: cargo publish
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
