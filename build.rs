@@ -2,7 +2,6 @@ use std::env;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
-use std::process::Command;
 
 fn main() {
     println!("cargo:rerun-if-changed=data/harmonized-system.csv");

@@ -35,6 +35,7 @@
 
 use crate::HscodeError::{HsChapterError, HsCodeLenError, InputError};
 use std::fmt;
+use std::str::FromStr;
 use thiserror::Error;
 include!(concat!(env!("OUT_DIR"), "/hs_data.rs"));
 #[derive(Error, Debug)]
@@ -47,12 +48,20 @@ pub enum HscodeError {
     HsChapterError(u8),
 }
 
+#[derive(PartialOrd, PartialEq,Debug)]
 pub struct HsCode(Vec<u8>);
 
 impl fmt::Display for HsCode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.0.iter().map(|&d| (d + b'0') as char).collect();
         write!(f, "{}", s)
+    }
+}
+
+impl FromStr for HsCode {
+    type Err = HscodeError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::try_new_from_str(s)
     }
 }
 
@@ -107,7 +116,7 @@ pub(crate) fn verify_and_trans_hs_code(input: &str) -> Result<Vec<u8>, HscodeErr
     }
     let chap: Vec<_> = bytes.iter().map(|b| b - b'0').collect();
     let chapter = chap[0] * 10 + chap[1];
-    if chapter > 97 || chapter < 1 {
+    if !(1..=97).contains(&chapter) {
         return Err(HsChapterError(chapter));
     }
     Ok(chap)
@@ -169,5 +178,11 @@ mod tests {
         let code1 = HsCode::try_new_from_str("01012900").unwrap();
         let code2 = HsCode::try_new_from_str("01012800").unwrap();
         assert_eq!(code1.diff(&code2), vec![5]); 
+    }
+
+    #[test]
+    fn test_fromstr() {
+        let code = "10011001".parse::<HsCode>().unwrap();
+        assert_eq!(code,HsCode::try_new_from_str("10011001").unwrap())
     }
 }
