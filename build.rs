@@ -42,8 +42,4 @@ fn main() {
 
     std::fs::write(&dest_path, code).unwrap();
     println!("cargo:info=Generated hs_data.rs with {} entries", entries.len());
-    let output = Command::new("git")
-        .args(["rev-parse", "HEAD"])
-        .output()
-        .unwrap();
 }
