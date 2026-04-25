@@ -33,12 +33,16 @@ fn main() {
     code.push_str("use phf::phf_map;\n\n");
     code.push_str("pub static HS_MAP: phf::Map<&'static str, &'static str> = phf_map! {\n");
 
-    for (hs_code, desc) in &entries {  // ✅ 改名了
+    for (hs_code, desc) in &entries {
+        // ✅ 改名了
         let escaped_desc = desc.replace('\\', "\\\\").replace('"', "\\\"");
         code.push_str(&format!("    \"{}\" => \"{}\",\n", hs_code, escaped_desc));
     }
     code.push_str("};\n");
 
     std::fs::write(&dest_path, code).unwrap();
-    println!("cargo:info=Generated hs_data.rs with {} entries", entries.len());
+    println!(
+        "cargo:info=Generated hs_data.rs with {} entries",
+        entries.len()
+    );
 }

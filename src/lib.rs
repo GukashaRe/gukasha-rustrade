@@ -48,7 +48,7 @@ pub enum HscodeError {
     HsChapterError(u8),
 }
 
-#[derive(PartialOrd, PartialEq,Debug)]
+#[derive(PartialOrd, PartialEq, Debug)]
 pub struct HsCode(Vec<u8>);
 
 impl fmt::Display for HsCode {
@@ -76,11 +76,7 @@ impl FromStr for HsCode {
 /// assert_eq!(desc, "Horses; live");
 /// ```
 pub fn lookup(code: &str) -> Option<&'static str> {
-    let key = if code.len() >= 6 {
-        &code[..6]
-    } else {
-        code
-    };
+    let key = if code.len() >= 6 { &code[..6] } else { code };
     HS_MAP.get(key).copied()
 }
 
@@ -96,14 +92,17 @@ impl HsCode {
     pub fn try_new_from_str(input: &str) -> Result<Self, HscodeError> {
         verify_and_trans_hs_code(input).map(HsCode)
     }
-    pub fn diff(&self,other:&HsCode) -> Vec<usize> {
-        self
-            .0
+    pub fn diff(&self, other: &HsCode) -> Vec<usize> {
+        self.0
             .iter()
             .zip(other.0.iter())
             .enumerate()
-            .filter_map(|(inx,(x,y))| {if x != y {Some(inx)} else { None }})
+            .filter_map(|(inx, (x, y))| if x != y { Some(inx) } else { None })
             .collect()
+    }
+    pub fn description(&self) -> Option<&'static str> {
+        let key: String = self.0.iter().take(6).map(|&d| (d + b'0') as char).collect();
+        HS_MAP.get(&key).copied()
     }
 }
 pub(crate) fn verify_and_trans_hs_code(input: &str) -> Result<Vec<u8>, HscodeError> {
@@ -177,12 +176,19 @@ mod tests {
     fn test_diff() {
         let code1 = HsCode::try_new_from_str("01012900").unwrap();
         let code2 = HsCode::try_new_from_str("01012800").unwrap();
-        assert_eq!(code1.diff(&code2), vec![5]); 
+        assert_eq!(code1.diff(&code2), vec![5]);
     }
 
     #[test]
     fn test_fromstr() {
         let code = "10011001".parse::<HsCode>().unwrap();
-        assert_eq!(code,HsCode::try_new_from_str("10011001").unwrap())
+        assert_eq!(code, HsCode::try_new_from_str("10011001").unwrap())
+    }
+
+    #[test]
+    fn test_descrip() {
+        let code = HsCode::new_from_str("01012100");
+        assert!(code.description().is_some());
+        assert_eq!(code.description().unwrap(), "Horses; live")
     }
 }
