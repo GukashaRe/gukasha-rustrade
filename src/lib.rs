@@ -144,4 +144,11 @@ mod tests {
         let result = HsCode::try_new_from_str("98012900");
         assert!(matches!(result, Err(HsChapterError(98))));
     }
+
+    #[test]
+    fn test_diff() {
+        let code1 = HsCode::try_new_from_str("01012900").unwrap();
+        let code2 = HsCode::try_new_from_str("01012800").unwrap();
+        assert_eq!(code1.diff(&code2), vec![5]); 
+    }
 }
