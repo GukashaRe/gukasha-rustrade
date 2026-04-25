@@ -2,6 +2,7 @@ use std::env;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
+use std::process::Command;
 
 fn main() {
     println!("cargo:rerun-if-changed=data/harmonized-system.csv");
@@ -37,9 +38,16 @@ fn main() {
         let escaped_desc = desc.replace('\\', "\\\\").replace('"', "\\\"");
         code.push_str(&format!("    \"{}\" => \"{}\",\n", hs_code, escaped_desc));
     }
-
     code.push_str("};\n");
 
     std::fs::write(&dest_path, code).unwrap();
     println!("cargo:info=Generated hs_data.rs with {} entries", entries.len());
+    let output = Command::new("git")
+        .args(["rev-parse", "HEAD"])
+        .output()
+        .unwrap();
+    let git_hash = String::from_utf8(output.stdout).unwrap();
+
+    // 注入到环境变量
+    println!("cargo:rustc-env=GIT_HASH={}", git_hash);
 }

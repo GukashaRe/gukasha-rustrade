@@ -37,7 +37,7 @@ use crate::HscodeError::{HsChapterError, HsCodeLenError, InputError};
 use std::fmt;
 use thiserror::Error;
 include!(concat!(env!("OUT_DIR"), "/hs_data.rs"));
-
+pub const GIT_HASH: &str = env!("GIT_HASH");
 #[derive(Error, Debug)]
 pub enum HscodeError {
     #[error("输入格式错误")]
