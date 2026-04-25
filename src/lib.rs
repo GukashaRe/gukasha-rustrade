@@ -68,8 +68,17 @@ impl HsCode {
     pub fn try_new_from_str(input: &str) -> Result<Self, HscodeError> {
         verify_and_trans_hs_code(input).map(HsCode)
     }
+    pub fn diff(&self,other:&HsCode) -> Vec<usize> {
+        self
+            .0
+            .iter()
+            .zip(other.0.iter())
+            .enumerate()
+            .filter_map(|(inx,(x,y))| {if x != y {Some(inx)} else { None }})
+            .collect()
+    }
 }
-fn verify_and_trans_hs_code(input: &str) -> Result<Vec<u8>, HscodeError> {
+pub(crate) fn verify_and_trans_hs_code(input: &str) -> Result<Vec<u8>, HscodeError> {
     let bytes = input.as_bytes();
     if !(bytes.len() == 8 || bytes.len() == 10) {
         return Err(HsCodeLenError(bytes.len()));
