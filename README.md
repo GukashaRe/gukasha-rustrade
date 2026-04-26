@@ -129,4 +129,18 @@ This project is licensed under the **GNU Lesser General Public License v2.1 only
 
 ---
 
+## Disclaimer
+
+This project is a **technical implementation** for HS Code validation
+and processing based on publicly available customs data.
+
+- All “region” or “territory” identifiers are used **solely to distinguish
+  different customs tariff extension rules**, not as a political statement.
+- The use of identifiers such as `cn-mainland`, `tw`, `hk`, `mo` follows
+  the **WTO definition of separate customs territories**.
+- No political meaning is intended or implied. Region or territory identifiers are used solely for technical purposes to distinguish different customs tariff rules.
+
+If you disagree with the above, please do not use this project.
+
+---
 **gukasha** ── where Rust meets trade logistics.
