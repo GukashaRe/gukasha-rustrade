@@ -129,18 +129,15 @@ This project is licensed under the **GNU Lesser General Public License v2.1 only
 
 ---
 
-## Disclaimer
+## ⚠️ Technical Disclaimer
 
-This project is a **technical implementation** for HS Code validation
-and processing based on publicly available customs data.
+This library processes HS codes based on publicly available customs data. Region identifiers (`cn-mainland`, `tw`, `hk`, `mo`) are used solely to distinguish:
 
-- All “region” or “territory” identifiers are used **solely to distinguish
-  different customs tariff extension rules**, not as a political statement.
-- The use of identifiers such as `cn-mainland`, `tw`, `hk`, `mo` follows
-  the **WTO definition of separate customs territories**.
-- No political meaning is intended or implied. Region or territory identifiers are used solely for technical purposes to distinguish different customs tariff rules.
+1. Different customs territories as defined by WTO agreements
+2. Varying tariff extension rules and commodity descriptions
+3. Technical implementation requirements for trade automation
 
-If you disagree with the above, please do not use this project.
+No political position is expressed or implied. If you have concerns about terminology, please consider alternative solutions.
 
 ---
 **gukasha** ── where Rust meets trade logistics.
