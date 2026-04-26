@@ -31,7 +31,6 @@ pub enum HscodeError {
     HsChapterError(u8),
 }
 
-
 /// A validated HS Code stored as a vector of numeric bytes.
 ///
 /// The inner representation uses `Vec<u8>` where each byte is the numeric value
@@ -139,7 +138,7 @@ pub(crate) fn verify_and_trans_hs_code(input: &str) -> Result<Vec<u8>, HscodeErr
     let bytes = input.as_bytes();
     // HS Code length must be between 6 and 14 digits (inclusive) and even.
     // Odd lengths or codes longer than 14 are rejected.
-    if bytes.len() < 6  || !bytes.len().is_multiple_of(2)|| bytes.len() >= 16 {
+    if bytes.len() < 6 || !bytes.len().is_multiple_of(2) || bytes.len() >= 16 {
         return Err(HsCodeLenError(bytes.len()));
     }
     if !bytes.iter().all(|b| b.is_ascii_digit()) {
@@ -238,7 +237,7 @@ mod tests {
 
     #[test]
     fn test_invalid_too_long() {
-        let result = HsCode::try_new_from_str("0101210010121416");  // 16 位
+        let result = HsCode::try_new_from_str("0101210010121416"); // 16 位
         assert!(matches!(result, Err(HsCodeLenError(16))));
     }
 }
