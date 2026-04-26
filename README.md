@@ -131,13 +131,24 @@ This project is licensed under the **GNU Lesser General Public License v2.1 only
 
 ## ⚠️ Technical Disclaimer
 
-This library processes HS codes based on publicly available customs data. Region identifiers (`cn-mainland`, `tw`, `hk`, `mo`) are used solely to distinguish:
+This library processes HS codes based on publicly available customs data.
+Region identifiers (`cn-mainland`, `tw`, `hk`, `mo`) are used solely to:
 
-1. Different customs territories as defined by WTO agreements
-2. Varying tariff extension rules and commodity descriptions
-3. Technical implementation requirements for trade automation
+- Distinguish different customs territories as defined by WTO agreements
+- Handle varying tariff extension rules and commodity descriptions
+- Meet technical implementation requirements for trade automation
 
-No political position is expressed or implied. If you have concerns about terminology, please consider alternative solutions.
+### **To contributors from all customs territories:**
+
+Region/territory identifiers in this project are used **solely for technical
+customs processing**.
+
+By submitting code, you agree that **no political meaning is intended or implied**.
+
+Your expertise on local tariff rules is very welcome.
+
+No political position is expressed or implied. If you have concerns about
+terminology, please consider alternative solutions.
 
 ---
 **gukasha** ── where Rust meets trade logistics.
