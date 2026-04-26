@@ -1,38 +1,21 @@
 // Copyright (C) 2026 WFGukasha
 //
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 2.1 of the License, or (at your option) any later version.
-//
-// This library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public
-// License along with this library; if not, see <https://www.gnu.org/licenses/>.
+// SPDX-License-Identifier: LGPL-2.1-only
+
 //! # Gukasha Rustrade
 //!
-//! **Gukasha Rustrade** 是一个专注于**贸易与物流领域**的 Rust 工具箱。
+//! A Rust toolbox for trade and logistics, focusing on HS Code validation,
+//! description lookup, and digit-level comparison.
 //!
-//! ## 当前能力
+//! ## Current features
+//! - HS Code validation (length: 6–14 even digits)
+//! - Chapter extraction (first 2 digits)
+//! - Diff: find first differing digit index between two codes
+//! - Commodity description lookup (from precompiled HS table)
+//! - `FromStr` trait for `"010121".parse()`
 //!
-//! *   HS Code (协调制度编码) 的校验与转换
-//!
-//! ## 未来规划 (Roadmap)
-//!
-//! 本项目不止于此，它旨在成为一个全面的贸易工具箱，未来计划加入：
-//!
-//! *   **更多编码标准**: 如 BOM (物料清单)、ECN (工程变更通知) 等。
-//! *   **贸易单证处理**: 发票、装箱单、提单等关键数据的结构化抽取与验证。
-//! *   **物流追踪**: 处理不同运输方式的追踪号验证和解析。
-//! *   **国家/地区编码**: ISO 3166 国家的验证、名称转换等。
-//!
-//! ## 贡献
-//!
-//! 本项目处于极早期 (0.0.1)，欢迎提出建议或参与贡献！
-
+//! ## Roadmap
+//! See crate-level doc for future plans (BOM, ECN, logistics tracking, etc.).
 use crate::HscodeError::{HsChapterError, HsCodeLenError, InputError};
 use std::fmt;
 use std::str::FromStr;
@@ -48,6 +31,17 @@ pub enum HscodeError {
     HsChapterError(u8),
 }
 
+
+/// A validated HS Code stored as a vector of numeric bytes.
+///
+/// The inner representation uses `Vec<u8>` where each byte is the numeric value
+/// of the corresponding digit (0–9). This keeps comparison and slicing efficient.
+///
+/// # Example
+/// ```
+/// let code = HsCode::new_from_str("010121");
+/// assert_eq!(code.get_chapter(), 1);
+/// ```
 #[derive(PartialOrd, PartialEq, Debug)]
 pub struct HsCode(Vec<u8>);
 
@@ -81,6 +75,10 @@ pub fn lookup(code: &str) -> Option<&'static str> {
 }
 
 impl HsCode {
+    /// Parses a string and returns an `HsCode`, panicking on error.
+    ///
+    /// Use this only when you are certain the input is valid.
+    /// For fallible parsing, use `try_new_from_str` or `FromStr::from_str`.
     pub fn new_from_str(input: &str) -> Self {
         Self::try_new_from_str(input).unwrap()
     }
@@ -88,10 +86,24 @@ impl HsCode {
     pub fn get_chapter(&self) -> u8 {
         self.0[0] * 10 + self.0[1]
     }
-
+    /// Attempts to parse a string into an `HsCode`.
+    ///
+    /// This is the main fallible constructor. On success, the code is guaranteed
+    /// to satisfy all validation rules (length, digits, chapter range).
     pub fn try_new_from_str(input: &str) -> Result<Self, HscodeError> {
         verify_and_trans_hs_code(input).map(HsCode)
     }
+    /// Returns the 0‑based indices where two HS Codes differ.
+    ///
+    /// Only positions that exist in the shorter code are considered.
+    /// This is useful for pinpointing errors in student answers or data migrations.
+    ///
+    /// # Example
+    /// ```
+    /// let a = HsCode::new_from_str("010121");
+    /// let b = HsCode::new_from_str("010128");
+    /// assert_eq!(a.diff(&b), vec![5]);
+    /// ```
     pub fn diff(&self, other: &HsCode) -> Vec<usize> {
         self.0
             .iter()
@@ -100,14 +112,34 @@ impl HsCode {
             .filter_map(|(inx, (x, y))| if x != y { Some(inx) } else { None })
             .collect()
     }
+    /// Looks up the commodity description for the first 6 digits of the code.
+    ///
+    /// The description is taken from a precompiled static map generated from
+    /// the official HS nomenclature. The map is built at compile time using
+    /// data from `data/harmonized-system.csv`.
+    ///
+    /// Returns `None` if the 6‑digit prefix is unknown.
     pub fn description(&self) -> Option<&'static str> {
         let key: String = self.0.iter().take(6).map(|&d| (d + b'0') as char).collect();
         HS_MAP.get(&key).copied()
     }
 }
+
+/// Converts a raw HS Code string into a vector of digit bytes.
+///
+/// # Rules
+/// - Length must be between 6 and 14 digits (inclusive) and even.
+/// - All characters must be ASCII digits.
+/// - The first two digits (chapter) must be between 1 and 97.
+///
+/// # Returns
+/// - `Ok(Vec<u8>)` on success, where each element is the numeric value (0-9).
+/// - `Err(HscodeError)` on failure.
 pub(crate) fn verify_and_trans_hs_code(input: &str) -> Result<Vec<u8>, HscodeError> {
     let bytes = input.as_bytes();
-    if !(bytes.len() == 8 || bytes.len() == 10) {
+    // HS Code length must be between 6 and 14 digits (inclusive) and even.
+    // Odd lengths or codes longer than 14 are rejected.
+    if bytes.len() < 6  || !bytes.len().is_multiple_of(2)|| bytes.len() >= 16 {
         return Err(HsCodeLenError(bytes.len()));
     }
     if !bytes.iter().all(|b| b.is_ascii_digit()) {
@@ -190,5 +222,23 @@ mod tests {
         let code = HsCode::new_from_str("01012100");
         assert!(code.description().is_some());
         assert_eq!(code.description().unwrap(), "Horses; live")
+    }
+
+    #[test]
+    fn test_valid_12_digit_hscode() {
+        let code = HsCode::new_from_str("010121001012");
+        assert_eq!(code.get_chapter(), 1);
+    }
+
+    #[test]
+    fn test_invalid_odd_length() {
+        let result = HsCode::try_new_from_str("0101211");
+        assert!(matches!(result, Err(HsCodeLenError(7))));
+    }
+
+    #[test]
+    fn test_invalid_too_long() {
+        let result = HsCode::try_new_from_str("0101210010121416");  // 16 位
+        assert!(matches!(result, Err(HsCodeLenError(16))));
     }
 }
