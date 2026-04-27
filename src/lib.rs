@@ -21,12 +21,16 @@ use thiserror::Error;
 
 include!(concat!(env!("OUT_DIR"), "/hs_data.rs"));
 
+/// Errors that can occur during HS Code parsing and validation.
 #[derive(Error, Debug)]
 pub enum HscodeError {
+    /// Input contains non-digit characters.
     #[error("Invalid input format: non-digit character")]
     InputError,
+    /// HS Code length is invalid (expected 6-14 even digits).
     #[error("Invalid HS code length: expected 6-14 even digits, got {0}")]
     HsCodeLenError(usize),
+    /// Chapter number (first two digits) is outside the valid range 1..=97.
     #[error("Chapter out of range: expected 1-97, got {0}")]
     HsChapterError(u8),
 }
@@ -51,6 +55,16 @@ impl fmt::Display for HsCode {
     }
 }
 
+
+/// Enables parsing an `HsCode` from a string using the `parse()` method.
+///
+/// # Example
+/// ```
+/// use gukasha_rustrade::HsCode;
+/// use std::str::FromStr;
+///
+/// let code = HsCode::from_str("01012100").unwrap();
+/// ```
 impl FromStr for HsCode {
     type Err = HscodeError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -74,6 +88,7 @@ pub fn lookup(code: &str) -> Option<&'static str> {
 }
 
 impl HsCode {
+    /// ```
     /// Creates an `HsCode` from a string, panicking on invalid input.
     ///
     /// Use this only when the input is guaranteed to be valid.
@@ -82,7 +97,14 @@ impl HsCode {
         Self::try_new_from_str(input).unwrap()
     }
 
-    /// Returns the chapter number (first two digits).
+    /// Returns the chapter number (first two digits) as a `u8`.
+    ///
+    /// # Example
+    /// ```
+    /// # use gukasha_rustrade::HsCode;
+    /// let code = HsCode::new_from_str("01012100");
+    /// assert_eq!(code.get_chapter(), 1);
+    /// ```
     pub fn get_chapter(&self) -> u8 {
         self.0[0] * 10 + self.0[1]
     }
