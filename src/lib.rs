@@ -10,31 +10,31 @@
 //! ## Current features
 //! - HS Code validation (length: 6–14 even digits)
 //! - Chapter extraction (first 2 digits)
-//! - Diff: find first differing digit index between two codes
+//! - Diff: find differing digit indices between two codes
 //! - Commodity description lookup (from precompiled HS table)
 //! - `FromStr` trait for `"010121".parse()`
-//!
-//! ## Roadmap
-//! See crate-level doc for future plans (BOM, ECN, logistics tracking, etc.).
+
 use crate::HscodeError::{HsChapterError, HsCodeLenError, InputError};
 use std::fmt;
 use std::str::FromStr;
 use thiserror::Error;
+
 include!(concat!(env!("OUT_DIR"), "/hs_data.rs"));
+
 #[derive(Error, Debug)]
 pub enum HscodeError {
-    #[error("输入格式错误")]
+    #[error("Invalid input format: non-digit character")]
     InputError,
-    #[error("位数输入错误，需要8/10位，但你却输入了 {0} 位")]
+    #[error("Invalid HS code length: expected 6-14 even digits, got {0}")]
     HsCodeLenError(usize),
-    #[error("章节范围 1-97 但意外得到了 {0} 章")]
+    #[error("Chapter out of range: expected 1-97, got {0}")]
     HsChapterError(u8),
 }
 
-/// A validated HS Code stored as a vector of numeric bytes.
+/// A validated HS Code stored as a vector of numeric bytes (0-9).
 ///
-/// The inner representation uses `Vec<u8>` where each byte is the numeric value
-/// of the corresponding digit (0–9). This keeps comparison and slicing efficient.
+/// The inner `Vec<u8>` stores each digit as its numeric value for efficient
+/// comparison and slicing. Use the provided constructors to create a valid `HsCode`.
 ///
 /// # Example
 /// ```
@@ -58,7 +58,7 @@ impl FromStr for HsCode {
     }
 }
 
-/// 根据 HS 编码（前6位）查询标准商品描述
+/// Looks up a commodity description by its 6-digit HS code.
 ///
 /// # Examples
 ///
@@ -74,28 +74,30 @@ pub fn lookup(code: &str) -> Option<&'static str> {
 }
 
 impl HsCode {
-    /// Parses a string and returns an `HsCode`, panicking on error.
+    /// Creates an `HsCode` from a string, panicking on invalid input.
     ///
-    /// Use this only when you are certain the input is valid.
+    /// Use this only when the input is guaranteed to be valid.
     /// For fallible parsing, use `try_new_from_str` or `FromStr::from_str`.
     pub fn new_from_str(input: &str) -> Self {
         Self::try_new_from_str(input).unwrap()
     }
 
+    /// Returns the chapter number (first two digits).
     pub fn get_chapter(&self) -> u8 {
         self.0[0] * 10 + self.0[1]
     }
-    /// Attempts to parse a string into an `HsCode`.
+
+    /// Attempts to parse an `HsCode` from a string.
     ///
-    /// This is the main fallible constructor. On success, the code is guaranteed
-    /// to satisfy all validation rules (length, digits, chapter range).
+    /// This is the main fallible constructor. It validates length, digit characters,
+    /// and chapter range.
     pub fn try_new_from_str(input: &str) -> Result<Self, HscodeError> {
         verify_and_trans_hs_code(input).map(HsCode)
     }
+
     /// Returns the 0‑based indices where two HS Codes differ.
     ///
-    /// Only positions that exist in the shorter code are considered.
-    /// This is useful for pinpointing errors in student answers or data migrations.
+    /// Only valid positions in the shorter code are considered.
     ///
     /// # Example
     /// ```
@@ -108,47 +110,47 @@ impl HsCode {
             .iter()
             .zip(other.0.iter())
             .enumerate()
-            .filter_map(|(inx, (x, y))| if x != y { Some(inx) } else { None })
+            .filter_map(|(idx, (x, y))| if x != y { Some(idx) } else { None })
             .collect()
     }
-    /// Looks up the commodity description for the first 6 digits of the code.
+
+    /// Looks up the commodity description for the first 6 digits.
     ///
-    /// The description is taken from a precompiled static map generated from
-    /// the official HS nomenclature. The map is built at compile time using
-    /// data from `data/harmonized-system.csv`.
-    ///
-    /// Returns `None` if the 6‑digit prefix is unknown.
+    /// The description comes from a precompiled static map generated from
+    /// `data/harmonized-system.csv` at build time.
+    /// Returns `None` if the 6‑digit prefix is not found.
     pub fn description(&self) -> Option<&'static str> {
         let key: String = self.0.iter().take(6).map(|&d| (d + b'0') as char).collect();
         HS_MAP.get(&key).copied()
     }
 }
 
-/// Converts a raw HS Code string into a vector of digit bytes.
+/// Converts an HS code string into a vector of numeric bytes.
 ///
 /// # Rules
-/// - Length must be between 6 and 14 digits (inclusive) and even.
+/// - Length must be between 6–14 digits (inclusive) and even.
 /// - All characters must be ASCII digits.
-/// - The first two digits (chapter) must be between 1 and 97.
+/// - The first two digits (chapter) must be in 1..=97.
 ///
 /// # Returns
-/// - `Ok(Vec<u8>)` on success, where each element is the numeric value (0-9).
+/// - `Ok(Vec<u8>)` on success, with each element as the numeric value (0-9).
 /// - `Err(HscodeError)` on failure.
 pub(crate) fn verify_and_trans_hs_code(input: &str) -> Result<Vec<u8>, HscodeError> {
     let bytes = input.as_bytes();
-    // HS Code length must be between 6 and 14 digits (inclusive) and even.
-    // Odd lengths or codes longer than 14 are rejected.
+
     if bytes.len() < 6 || !bytes.len().is_multiple_of(2) || bytes.len() >= 16 {
         return Err(HsCodeLenError(bytes.len()));
     }
     if !bytes.iter().all(|b| b.is_ascii_digit()) {
         return Err(InputError);
     }
+
     let chap: Vec<_> = bytes.iter().map(|b| b - b'0').collect();
     let chapter = chap[0] * 10 + chap[1];
     if !(1..=97).contains(&chapter) {
         return Err(HsChapterError(chapter));
     }
+
     Ok(chap)
 }
 
@@ -171,9 +173,27 @@ mod tests {
     }
 
     #[test]
+    fn test_valid_12_digit_hscode() {
+        let code = HsCode::new_from_str("010121001012");
+        assert_eq!(code.get_chapter(), 1);
+    }
+
+    #[test]
     fn test_invalid_length() {
         let result = HsCode::try_new_from_str("123");
         assert!(matches!(result, Err(HsCodeLenError(3))));
+    }
+
+    #[test]
+    fn test_invalid_odd_length() {
+        let result = HsCode::try_new_from_str("0101211");
+        assert!(matches!(result, Err(HsCodeLenError(7))));
+    }
+
+    #[test]
+    fn test_invalid_too_long() {
+        let result = HsCode::try_new_from_str("0101210010121416");
+        assert!(matches!(result, Err(HsCodeLenError(16))));
     }
 
     #[test]
@@ -190,15 +210,12 @@ mod tests {
 
     #[test]
     fn test_chapter_boundary() {
-        // 第 1 章应该有效
         let result = HsCode::try_new_from_str("01012900");
         assert!(result.is_ok());
 
-        // 第 97 章应该有效
         let result = HsCode::try_new_from_str("97012900");
         assert!(result.is_ok());
 
-        // 第 98 章应该无效
         let result = HsCode::try_new_from_str("98012900");
         assert!(matches!(result, Err(HsChapterError(98))));
     }
@@ -220,24 +237,6 @@ mod tests {
     fn test_descrip() {
         let code = HsCode::new_from_str("01012100");
         assert!(code.description().is_some());
-        assert_eq!(code.description().unwrap(), "Horses; live")
-    }
-
-    #[test]
-    fn test_valid_12_digit_hscode() {
-        let code = HsCode::new_from_str("010121001012");
-        assert_eq!(code.get_chapter(), 1);
-    }
-
-    #[test]
-    fn test_invalid_odd_length() {
-        let result = HsCode::try_new_from_str("0101211");
-        assert!(matches!(result, Err(HsCodeLenError(7))));
-    }
-
-    #[test]
-    fn test_invalid_too_long() {
-        let result = HsCode::try_new_from_str("0101210010121416"); // 16 位
-        assert!(matches!(result, Err(HsCodeLenError(16))));
+        assert_eq!(code.description().unwrap(), "Horses; live");
     }
 }
