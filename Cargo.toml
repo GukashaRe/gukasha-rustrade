@@ -1,12 +1,13 @@
 [package]
 name = "gukasha-rustrade"
-version = "0.1.17"
+version = "0.1.20"
 edition = "2024"
 license = "LGPL-2.1-only"
 description = "A Rust toolbox focusing on trade and logistics that currently provides HS Code verification and conversion capabilities"
 repository = "https://github.com/GukashaRe/gukasha-rustrade"
 readme = "README.md"
-
+keywords = ["hscode", "validation", "trade", "customs", "logistics"]
+categories = ["internationalization", "value-formatting"]
 
 [dependencies]
 phf = {version = "0.13.1",features = ["macros"]}
