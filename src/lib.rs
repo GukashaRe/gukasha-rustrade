@@ -16,6 +16,7 @@
 
 use crate::HscodeError::{HsChapterError, HsCodeLenError, InputError};
 use std::fmt;
+use std::io::Read;
 use std::str::FromStr;
 use thiserror::Error;
 
@@ -54,7 +55,6 @@ impl fmt::Display for HsCode {
         write!(f, "{}", s)
     }
 }
-
 
 /// Enables parsing an `HsCode` from a string using the `parse()` method.
 ///
@@ -144,6 +144,36 @@ impl HsCode {
     pub fn description(&self) -> Option<&'static str> {
         let key: String = self.0.iter().take(6).map(|&d| (d + b'0') as char).collect();
         HS_MAP.get(&key).copied()
+    }
+
+    /// Returns the total number of digits in this HS code.
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    /// HS codes are never empty. This method always returns `false`.
+    pub fn is_empty(&self) -> bool {
+        false
+    }
+
+    /// Returns `true` if this HS code has the standard 6-digit international length.
+    pub fn is_six_digit(&self) -> bool {
+        self.len() == 6
+    }
+
+    /// Returns `true` if this HS code has the full 10-digit China-specific length.
+    pub fn is_ten_digit(&self) -> bool {
+        self.len() == 10
+    }
+
+    /// Returns an iterator over the digits as `u8` values.
+    pub fn iter(&self) -> std::slice::Iter<'_, u8> {
+        self.0.iter()
+    }
+
+    /// Returns an iterator over the digits as `char`s (e.g., '0'..'9').
+    pub fn chars(&self) -> impl Iterator<Item = char> + '_ {
+        self.0.iter().map(|x| (x + b'0') as char)
     }
 }
 
