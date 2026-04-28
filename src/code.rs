@@ -3,6 +3,7 @@ use std::fmt;
 use std::str::FromStr;
 
 #[derive(PartialOrd, PartialEq, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct HsCode(Vec<u8>);
 
 impl fmt::Display for HsCode {
