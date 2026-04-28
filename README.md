@@ -151,4 +151,18 @@ No political position is expressed or implied. If you have concerns about
 terminology, please consider alternative solutions.
 
 ---
+### **WTO Legal Basis for Customs Territory Identifiers**
+
+- **WTO Agreement Article XII**: Separate customs territories possessing full
+  autonomy in external trade relations may accede to the WTO.
+- **WTO Agreement Explanatory Note**: The term "country" in WTO agreements
+  includes separate customs territory Members.
+
+*Source: Marrakesh Agreement Establishing the World Trade Organization,
+Articles XII and Explanatory Notes.*
+> The terms "country" or "countries" as used in this Agreement and the Multilateral Trade Agreements are to be understood to include any separate customs territory Member of the WTO.</br>
+> In the case of a separate customs territory Member of the WTO, where an expression in this Agreement and the Multilateral Trade Agreements is qualiﬁed by the term "national", such expression shall be read as pertaining to that customs territory, unless otherwise speciﬁed.
+> 
+> — [WTO Agreement Text (Marrakesh Agreement)](https://www.wto.org/english/docs_e/legal_e/marag_e.htm)
+---
 **gukasha** ── where Rust meets trade logistics.
