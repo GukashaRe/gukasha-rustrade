@@ -165,4 +165,5 @@ Articles XII and Explanatory Notes.*
 > 
 > — [WTO Agreement Text (Marrakesh Agreement)](https://www.wto.org/english/docs_e/legal_e/marag_e.htm)
 ---
-**gukasha** ── where Rust meets trade logistics.
+This project follows WTO terminology on separate customs territories.
+For any legal concerns, please refer to the WTO Agreement directly.
