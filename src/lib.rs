@@ -15,11 +15,10 @@
 //! - `FromStr` trait for `"010121".parse()`
 
 pub mod code;
-pub use code::HsCode;
 use crate::HscodeError::{HsChapterError, HsCodeLenError, InputError};
+pub use code::HsCode;
 use thiserror::Error;
 include!(concat!(env!("OUT_DIR"), "/hs_data.rs"));
-
 
 /// Errors that can occur during HS Code parsing and validation.
 #[derive(Error, Debug)]
@@ -34,7 +33,6 @@ pub enum HscodeError {
     #[error("Chapter out of range: expected 1-97, got {0}")]
     HsChapterError(u8),
 }
-
 
 /// Converts an HS code string into a vector of numeric bytes.
 ///

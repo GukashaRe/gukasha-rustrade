@@ -1,6 +1,6 @@
+use crate::*;
 use std::fmt;
 use std::str::FromStr;
-use crate::*;
 
 #[derive(PartialOrd, PartialEq, Debug)]
 pub struct HsCode(Vec<u8>);
