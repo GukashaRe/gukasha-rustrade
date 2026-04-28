@@ -16,6 +16,7 @@
 
 pub mod code;
 pub mod lookup;
+pub mod territory;
 
 use crate::HscodeError::{HsChapterError, HsCodeLenError, InputError};
 pub use code::HsCode;
