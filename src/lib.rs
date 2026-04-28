@@ -15,6 +15,8 @@
 //! - `FromStr` trait for `"010121".parse()`
 
 pub mod code;
+pub mod lookup;
+
 use crate::HscodeError::{HsChapterError, HsCodeLenError, InputError};
 pub use code::HsCode;
 use thiserror::Error;

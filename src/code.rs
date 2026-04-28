@@ -1,4 +1,4 @@
-use crate::*;
+use crate::{HS_MAP, HscodeError, verify_and_trans_hs_code};
 use std::fmt;
 use std::str::FromStr;
 
@@ -37,10 +37,6 @@ impl FromStr for HsCode {
 /// let desc = lookup("010121").unwrap();
 /// assert_eq!(desc, "Horses; live");
 /// ```
-pub fn lookup(code: &str) -> Option<&'static str> {
-    let key = if code.len() >= 6 { &code[..6] } else { code };
-    HS_MAP.get(key).copied()
-}
 
 impl HsCode {
     /// ```
