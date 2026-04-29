@@ -84,4 +84,30 @@ mod tests {
         assert!(code.description().is_some());
         assert_eq!(code.description().unwrap(), "Horses; live");
     }
+
+    #[test]
+    fn test_last_two_digits_from_ten_digits() {
+        let code = HsCode::new_from_str("1234567890");
+        let result = code.last_two_digits();
+        assert_eq!(result, Some(&[9, 0][..]));
+    }
+
+    #[test]
+    fn test_last_two_digits_from_six_digits() {
+        let code = HsCode::new_from_str("123456");
+        let result = code.last_two_digits();
+        assert_eq!(result, None);
+    }
+
+    #[test]
+    #[should_panic(expected = "HsCodeLenError")]
+    fn test_new_from_str_empty_panics() {
+        let _code = HsCode::new_from_str("");
+    }
+
+    #[test]
+    #[should_panic(expected = "InputError")]
+    fn test_new_from_str_with_letters_panics() {
+        let _code = HsCode::new_from_str("12345678AB");
+    }
 }

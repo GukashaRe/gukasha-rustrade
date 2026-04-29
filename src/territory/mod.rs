@@ -1,3 +1,5 @@
+use crate::HsCode;
+
 // traits
 /// Public interface for customs territory-specific logic.
 ///
@@ -6,7 +8,9 @@
 /// It allows the crate to handle territory-specific HS code validation,
 /// commodity description lookup, and tax rate queries in a uniform way.
 
-pub trait TerritoryPublicMethod {}
+pub trait TerritoryPublicMethod {
+    fn get_tax(&self, code: &HsCode) -> Option<f64>;
+}
 // traits end
 #[cfg(feature = "cn-mainland")]
 pub mod cn_mainland;
