@@ -16,10 +16,10 @@ impl HsCode {
     ///
     /// # 示例
     /// ```
-    /// let code = HsCode::new(b"1234567890");
-    /// assert_eq!(code.last_two_digits(), Some(&b"90"[..]));
+    /// let code = HsCode::new_from_str("1234567890");
+    /// assert_eq!(code.last_two_digits(), Some(&[9, 0][..]));
     ///
-    /// let short_code = HsCode::new(b"123456");
+    /// let short_code = HsCode::new_from_str("123456");
     /// assert_eq!(short_code.last_two_digits(), None);
     /// ```
     pub fn last_two_digits(&self) -> Option<&[u8]> {
