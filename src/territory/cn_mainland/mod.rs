@@ -28,4 +28,23 @@ impl HsCode {
         }
         None
     }
+    /// 检查HS编码是否为纯数字格式
+    ///
+    /// 遍历编码的每个字节，确认所有字节均在数字0-9的范围内。
+    ///
+    /// # 返回值
+    /// * `true` - 所有字符均为数字
+    /// * `false` - 存在非数字字符
+    ///
+    /// # 示例
+    /// ```
+    /// let code = HsCode::new_from_str("1234567890");
+    /// assert!(code.is_all_digits());
+    ///
+    /// let invalid = HsCode::new_from_str("12345ABCDE");
+    /// assert!(!invalid.is_all_digits());
+    /// ```
+    pub fn is_all_digits(&self) -> bool {
+        self.iter().all(|x| (0..=9).contains(x))
+    }
 }
