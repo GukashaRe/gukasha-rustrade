@@ -38,9 +38,7 @@ impl FromStr for HsCode {
 /// let desc = lookup("010121").unwrap();
 /// assert_eq!(desc, "Horses; live");
 /// ```
-
 impl HsCode {
-    /// ```
     /// Creates an `HsCode` from a string, panicking on invalid input.
     ///
     /// Use this only when the input is guaranteed to be valid.
