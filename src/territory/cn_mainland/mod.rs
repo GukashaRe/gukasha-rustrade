@@ -45,6 +45,9 @@ impl HsCode {
     /// assert!(!invalid.is_all_digits());
     /// ```
     pub fn is_all_digits(&self) -> bool {
-        self.iter().all(|x| (0..=9).contains(x))
+        if validate_is_10_digits(self) {
+            return self.iter().all(|x| (0..=9).contains(x));
+        }
+        false
     }
 }
