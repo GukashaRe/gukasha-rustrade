@@ -30,11 +30,12 @@ impl HsCode {
     }
     /// 检查HS编码是否为纯数字格式
     ///
-    /// 遍历编码的每个字节，确认所有字节均在数字0-9的范围内。
+    /// 仅当编码长度为10位时，才检查所有字节是否均为数字0-9。
+    /// 长度不足10位的编码直接返回`false`。
     ///
     /// # 返回值
-    /// * `true` - 所有字符均为数字
-    /// * `false` - 存在非数字字符
+    /// * `true` - 编码为10位且所有字符均为数字
+    /// * `false` - 编码不足10位，或包含非数字字符
     ///
     /// # 示例
     /// ```
@@ -43,6 +44,9 @@ impl HsCode {
     ///
     /// let invalid = HsCode::new_from_str("12345ABCDE");
     /// assert!(!invalid.is_all_digits());
+    ///
+    /// let short = HsCode::new_from_str("123456");
+    /// assert!(!short.is_all_digits());
     /// ```
     pub fn is_all_digits(&self) -> bool {
         if validate_is_10_digits(self) {
