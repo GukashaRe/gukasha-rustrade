@@ -66,4 +66,3 @@ pub(crate) fn verify_and_trans_hs_code(input: &str) -> Result<Vec<u8>, HscodeErr
 
     Ok(chap)
 }
-

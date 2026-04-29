@@ -2,7 +2,7 @@
 mod tests {
     use crate::HsCode;
     use crate::HscodeError::*;
-    
+
     #[test]
     fn test_valid_8_digit_hscode() {
         let code = HsCode::new_from_str("01012900");
