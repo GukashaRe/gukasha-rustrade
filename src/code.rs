@@ -3,6 +3,7 @@ use std::fmt;
 use std::str::FromStr;
 
 #[derive(PartialOrd, PartialEq, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct HsCode(Vec<u8>);
 
 impl fmt::Display for HsCode {
@@ -37,9 +38,7 @@ impl FromStr for HsCode {
 /// let desc = lookup("010121").unwrap();
 /// assert_eq!(desc, "Horses; live");
 /// ```
-
 impl HsCode {
-    /// ```
     /// Creates an `HsCode` from a string, panicking on invalid input.
     ///
     /// Use this only when the input is guaranteed to be valid.

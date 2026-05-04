@@ -11,4 +11,11 @@ categories = ["internationalization", "value-formatting"]
 
 [dependencies]
 phf = {version = "0.13.1",features = ["macros"]}
+
+serde = { version = "1.0.228", features = ["derive"],optional = true }
 thiserror = "2.0.18"
+
+[features]
+default = ["cn-mainland"]
+cn-mainland = []
+serde = ["dep:serde"]
